@@ -1,0 +1,53 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowCloudWatchLogStreamCreation",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": [
+        {
+          "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/sandbox/peacemedia-zero-trust-audit:*"
+        }
+      ]
+    },
+    {
+      "Sid": "AllowKmsVolatileMemoryDecryption",
+      "Effect": "Allow",
+      "Action": [
+        "kms:Decrypt",
+        "kms:GenerateDataKey"
+      ],
+      "Resource": [
+        {
+          "Fn::GetAtt": [
+            "KmsEncryptionKey",
+            "Arn"
+          ]
+        }
+      ],
+      "Condition": {
+        "StringEquals": {
+          "kms:ViaService": {
+            "Fn::Sub": "logs.${AWS::Region}.amazonaws.com"
+          }
+        }
+      }
+    },
+    {
+      "Sid": "DenyAccessToExternalDataStores",
+      "Effect": "Deny",
+      "Action": [
+        "s3:*",
+        "dynamodb:*",
+        "rds:*",
+        "secretsmanager:*",
+        "ssm:GetParameter*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
