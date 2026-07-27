@@ -112,9 +112,7 @@ KMS Key Rotation: Audit log streams inherit the customer-managed KMS key policy.
      aws logs describe-log-groups --log-group-name-prefix /aws/sandbox/peacemedia-zero-trust-audit
 # 3. Confirm Ephemeral IAM Role Boundaries
      aws iam get-role-policy --role-name <ExecutionRoleFromOutputs> --policy-name VolatileExecutionAndAuditStreamPolicy
-
 ---
-
 ### Push File to GitHub
 
 Run these terminal commands to commit the architecture doc to your repository:
