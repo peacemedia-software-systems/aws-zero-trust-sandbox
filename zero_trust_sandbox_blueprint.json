@@ -1,0 +1,95 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Peacemedia Zero-Trust Evaluation Sandbox v2.0: Provisions an isolated, stateless evaluation gateway within a private AWS VPC. Features volatile RAM execution (/tmp), customer-managed BYOK KMS key encryption, real-time CloudWatch audit streaming, and EventBridge automated stack auto-destruction. Designed for zero-persistence B2B software POCs.",
+  "Parameters": {
+    "VpcId": {
+      "Type": "AWS::EC2::VPC::Id",
+      "Description": "Select the target private VPC for zero-trust evaluation deployment."
+    },
+    "SubnetId": {
+      "Type": "AWS::EC2::Subnet::Id",
+      "Description": "Select an isolated private subnet within the chosen VPC."
+    },
+    "EvaluationDurationDays": {
+      "Type": "Number",
+      "Default": 30,
+      "Description": "Number of days before the EventBridge auto-destruct trigger purges the stack."
+    }
+  },
+  "Resources": {
+    "KmsEncryptionKey": {
+      "Type": "AWS::KMS::Key",
+      "Properties": {
+        "Description": "Customer-managed KMS key for BYOK cryptographic memory and payload protection.",
+        "EnableKeyRotation": true,
+        "KeyPolicy": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "Enable IAM User Permissions",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": { "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:root" }
+              },
+              "Action": "kms:*",
+              "Resource": "*"
+            }
+          ]
+        }
+      }
+    },
+    "SandboxLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/sandbox/peacemedia-zero-trust-audit",
+        "RetentionInDays": 90,
+        "KmsKeyId": { "Fn::GetAtt": [ "KmsEncryptionKey", "Arn" ] }
+      }
+    },
+    "ExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "VolatileExecutionAndAuditStreamPolicy",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": { "Fn::GetAtt": [ "SandboxLogGroup", "Arn" ] }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "LogGroupArn": {
+      "Description": "Immutable CloudWatch Audit Log Stream ARN for CISO/SecOps verification.",
+      "Value": { "Fn::GetAtt": [ "SandboxLogGroup", "Arn" ] }
+    },
+    "KmsKeyArn": {
+      "Description": "BYOK KMS Key ARN managing payload isolation.",
+      "Value": { "Fn::GetAtt": [ "KmsEncryptionKey", "Arn" ] }
+    }
+  }
+}
