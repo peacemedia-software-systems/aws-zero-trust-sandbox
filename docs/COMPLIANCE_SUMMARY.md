@@ -75,5 +75,5 @@ aws iam get-role-policy \
 
 Document Metadata
 ​Author: Peace Chibueze, Lead Systems Architect
-​Entity: Peacemedia Systems
+​Entity: Peacemedia Software Systems
 ​Repository: github.com/peacemedia-software-systems/aws-zero-trust-sandbox
