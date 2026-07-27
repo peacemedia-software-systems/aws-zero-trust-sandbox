@@ -19,3 +19,6 @@ aws cloudformation create-stack \
   --stack-name peacemedia-sandbox-community \
   --template-body file://peacemedia_sandbox_blueprint.json \
   --capabilities CAPABILITY_IAM
+
+### 📄 Formal Governance & Compliance Download
+* [📥 Download CISO Security Whitepaper (PDF)](docs/CISO-Security-Whitepaper.pdf)
