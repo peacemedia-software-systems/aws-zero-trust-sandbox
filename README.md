@@ -12,3 +12,10 @@ License: MIT (https://img.shields.io/badge/License-MIT-yellow.svg)](https://open
 * 🧹 **Automated Lifecycle Purge:** Scheduled Amazon EventBridge triggers auto-delete the CloudFormation stack and revoke temporary IAM roles upon evaluation expiry.
 * 📋 **Audit Compliance:** Real-time immutable execution metadat
  streamed directly to the customer's private CloudWatch / S3 object-lock bucket.
+
+## Quickstart (AWS CLI)
+```bash
+aws cloudformation create-stack \
+  --stack-name peacemedia-sandbox-community \
+  --template-body file://peacemedia_sandbox_blueprint.json \
+  --capabilities CAPABILITY_IAM
